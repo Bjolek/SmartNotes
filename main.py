@@ -3,7 +3,28 @@ from PyQt5.QtWidgets import *
 app = QApplication([])
 window = QWidget()
 
-
+app.setStyleSheet("""
+    QWidget {
+        background: #F8F0E5;
+    }
+ 
+    QPushButton
+    {
+        background: #DAC0A3;
+        border-width: 5px;
+        border-color: #0F2C59;
+        border-style: inset;
+        font-family: Impact;
+    }
+   QTextEdit
+   {
+       background: #EADBC8;
+   }
+   QListWidget
+   {
+       background: #EADBC8;
+   }
+""")
 
 
 WindowEdit = QTextEdit()
