@@ -1,7 +1,16 @@
 from PyQt5.QtWidgets import *
-
+import json
 app = QApplication([])
 window = QWidget()
+
+try:
+    with open("notes_data.json", "r", encoding="utf-8") as file:
+        notes = json.load(file)
+except:
+    notes = {}
+
+
+
 
 app.setStyleSheet("""
     QWidget {
@@ -45,6 +54,100 @@ SearchNoteByTegButton = QPushButton("Шукати замітку по тегу")
 WriteTegButton = QLineEdit()
 WriteTegButton.setPlaceholderText("Ввести тег")
 
+def add_note():
+    note_name, ok = QInputDialog.getText(window, "Додати замітку", "Назва замітка: ")
+    if ok and note_name != "":
+        notes[note_name] = {
+            "текст": "",
+            "теги": []
+        }
+        ListWidget.clear()
+        WindowEdit.clear()
+        ListWidget.addItems(notes)
+
+        with open("notes_data.json", "w", encoding="utf-8") as file:
+            json.dump(notes, file, ensure_ascii=False, indent=4)
+
+AddNoteButton.clicked.connect(add_note)
+
+def show_note():
+    # отримуємо текст із замітки з виділеною назвою та відображаємо її в полі редагування
+    key = ListWidget.selectedItems()[0].text()
+    print(key)
+    WindowEdit.setText(notes[key]["текст"])
+    ListWidget2.clear()
+    ListWidget2.addItems(notes[key]["теги"])
+
+ListWidget.itemClicked.connect(show_note)
+
+def save_note():
+    if ListWidget.selectedItems():
+        key = ListWidget.selectedItems()[0].text()
+        notes[key]["текст"] = WindowEdit.toPlainText()
+        with open("notes_data.json", "w", encoding="utf-8") as file:
+            json.dump(notes, file, ensure_ascii=False, indent=4)
+    else:
+        print("Замітка для збереження не вибрана!")
+
+SaveButton.clicked.connect(save_note)
+
+def del_note():
+    if ListWidget.selectedItems():
+        key = ListWidget.selectedItems()[0].text()
+        notes.pop(key)
+        ListWidget.clear()
+        ListWidget2.clear()
+        WindowEdit.clear()
+        ListWidget.addItems(notes)
+        with open("notes_data.json", "w", encoding="utf-8") as file:
+            json.dump(notes, file, sort_keys=True, ensure_ascii=False, indent=4)
+        print(notes)
+    else:
+        print("Замітка для вилучення не обрана!")
+
+RemoveNoteButton.clicked.connect(del_note)
+
+def del_tag(): #кнопка видалити тег
+    if list_tags.selectedItems():
+        key = list_notes.selectedItems()[0].text()
+        tag = list_tags.selectedItems()[0].text()
+        notes[key]["теги"].remove(tag)
+        list_tags.clear()
+        list_tags.addItems(notes[key]["теги"])
+        with open("notes_data.json", "w", encoding="utf-8") as file:
+            json.dump(notes, file, ensure_ascii=False)
+    else:
+        print("Тег для вилучення не обраний!")
+
+
+def search_tag(): #кнопка "шукати замітку за тегом"
+    button_text = button_tag_search.text()
+    tag = field_tag.text()
+
+    if button_text == "Шукати замітки за тегом":
+        apply_tag_search(tag)
+    elif button_text == "Скинути пошук":
+        reset_search()
+
+def apply_tag_search(tag):
+    notes_filtered = {}
+    for note, value in notes.items():
+        if tag in value["теги"]:
+            notes_filtered[note] = value
+
+    button_tag_search.setText("Скинути пошук")
+    list_notes.clear()
+    list_tags.clear()
+    list_notes.addItems(notes_filtered)
+
+def reset_search():
+    field_tag.clear()
+    list_notes.clear()
+    list_tags.clear()
+    list_notes.addItems(notes)
+    button_tag_search.setText("Шукати замітки за тегом")
+
+
 mainLine = QHBoxLayout()
 SecondLine = QHBoxLayout()
 ThirdLine = QHBoxLayout()
@@ -78,6 +181,8 @@ ThirdLine.addWidget(AddToNoteButton)
 ThirdLine.addWidget(UnpinFromNoteButton)
 FifthLine.addWidget(SearchNoteByTegButton)
 
+
+ListWidget.addItems(notes)
 window.setLayout(mainLine)
 window.show()
 app.exec()
