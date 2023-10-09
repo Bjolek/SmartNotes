@@ -108,26 +108,31 @@ def del_note():
 RemoveNoteButton.clicked.connect(del_note)
 
 def del_tag(): #кнопка видалити тег
-    if list_tags.selectedItems():
-        key = list_notes.selectedItems()[0].text()
-        tag = list_tags.selectedItems()[0].text()
+    if ListWidget2.selectedItems():
+        key = ListWidget.selectedItems()[0].text()
+        tag = ListWidget2.selectedItems()[0].text()
         notes[key]["теги"].remove(tag)
-        list_tags.clear()
-        list_tags.addItems(notes[key]["теги"])
+        ListWidget2.clear()
+        ListWidget2.addItems(notes[key]["теги"])
         with open("notes_data.json", "w", encoding="utf-8") as file:
             json.dump(notes, file, ensure_ascii=False)
     else:
         print("Тег для вилучення не обраний!")
 
 
+UnpinFromNoteButton.clicked.connect(del_tag)
+
 def search_tag(): #кнопка "шукати замітку за тегом"
-    button_text = button_tag_search.text()
-    tag = field_tag.text()
+    button_text = SearchNoteByTegButton.text()
+    tag = WriteTegButton.text()
 
     if button_text == "Шукати замітки за тегом":
         apply_tag_search(tag)
     elif button_text == "Скинути пошук":
         reset_search()
+
+SearchNoteByTegButton.clicked.connect(search_tag)
+
 
 def apply_tag_search(tag):
     notes_filtered = {}
@@ -135,17 +140,16 @@ def apply_tag_search(tag):
         if tag in value["теги"]:
             notes_filtered[note] = value
 
-    button_tag_search.setText("Скинути пошук")
-    list_notes.clear()
-    list_tags.clear()
-    list_notes.addItems(notes_filtered)
+    SearchNoteByTegButton.setText("Скинути пошук")
+    ListWidget.clear()
+    ListWidget2.clear()  
+    ListWidget.addItems(notes_filtered)
 
 def reset_search():
-    field_tag.clear()
-    list_notes.clear()
-    list_tags.clear()
-    list_notes.addItems(notes)
-    button_tag_search.setText("Шукати замітки за тегом")
+    WriteTegButton.clear()
+    ListWidget.clear()
+    ListWidget2.clear()
+    ListWidget.addItems(notes)
 
 
 mainLine = QHBoxLayout()
