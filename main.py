@@ -107,6 +107,23 @@ def del_note():
 
 RemoveNoteButton.clicked.connect(del_note)
 
+def add_tag():#кнопка добавити тег
+    if ListWidget.selectedItems():
+        key = ListWidget.selectedItems()[0].text()
+        tag = WriteTegButton.text()
+        if not tag in notes[key]["теги"]:
+            notes[key]["теги"].append(tag)
+            ListWidget2.addItem(tag)
+            WriteTegButton.clear()
+        with open("notes_data.json", "w", encoding="utf-8") as file:
+            json.dump(notes, file,  ensure_ascii=False)
+        print(notes)
+    else:
+        print("Замітка для додавання тега не обрана!")
+
+AddToNoteButton.clicked.connect(add_tag)
+
+
 def del_tag(): #кнопка видалити тег
     if ListWidget2.selectedItems():
         key = ListWidget.selectedItems()[0].text()
@@ -126,7 +143,7 @@ def search_tag(): #кнопка "шукати замітку за тегом"
     button_text = SearchNoteByTegButton.text()
     tag = WriteTegButton.text()
 
-    if button_text == "Шукати замітки за тегом":
+    if button_text == "Шукати замітку по тегу":
         apply_tag_search(tag)
     elif button_text == "Скинути пошук":
         reset_search()
